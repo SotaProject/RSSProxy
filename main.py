@@ -8,8 +8,8 @@ import os
 
 app = FastAPI()
 
-OLD_BASE = os.environ.get('OLD_BASE', 'https://anchor.fm/')
-NEW_BASE = os.environ.get("NEW_BASE", 'https://podcast.sotaproject.com/')
+OLD_BASE = os.environ.get("OLD_BASE", "https://anchor.fm/")
+NEW_BASE = os.environ.get("NEW_BASE", "https://podcast.sotaproject.com/")
 
 
 def replace_enclosure_urls(xml_string):
@@ -17,11 +17,11 @@ def replace_enclosure_urls(xml_string):
     root = ET.fromstring(xml_string)
 
     # Find all <enclosure> tags and replace the URL attribute
-    for enclosure in root.iter('enclosure'):
-        enclosure.attrib['url'] = enclosure.attrib['url'].replace(OLD_BASE, NEW_BASE)
+    for enclosure in root.iter("enclosure"):
+        enclosure.attrib["url"] = enclosure.attrib["url"].replace(OLD_BASE, NEW_BASE)
 
     # Generate the modified XML string
-    modified_xml_string = ET.tostring(root, encoding='utf-8').decode()
+    modified_xml_string = ET.tostring(root, encoding="utf-8").decode()
 
     return modified_xml_string
 
@@ -34,10 +34,13 @@ async def proxy(url: str):
 
     headers = {}
 
-    if response.headers.get('content-type', 'application/plaintext') == 'application/rss+xml; charset=utf-8':
+    if (
+        response.headers.get("content-type", "application/plaintext")
+        == "application/rss+xml; charset=utf-8"
+    ):
         content = replace_enclosure_urls(content)
 
-        headers['content-type'] = 'application/rss+xml'
+        headers["content-type"] = "application/rss+xml"
 
     return Response(content, headers=headers)
 
